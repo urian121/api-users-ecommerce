@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, users } from '@/../db';
+import { db, users } from '@/db';
 
 export async function GET() {
   try {
@@ -15,7 +15,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  try {
+  /*try {
     const body = await request.json();
     const { name, email, password } = body;
     
@@ -39,5 +39,5 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to create user' },
       { status: 500 }
     );
-  }
+  }*/
 }
