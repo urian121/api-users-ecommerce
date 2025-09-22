@@ -1,0 +1,878 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID del usuario"
+          example: 1
+        name:
+          type: string
+          description: "Nombre del usuario"
+          example: "John Doe"
+          nullable: true
+        zoneId:
+          type: integer
+          description: "ID de la zona del usuario"
+          example: 1
+          nullable: true
+        email:
+          type: string
+          description: "Email del usuario"
+          example: "john.doe@example.com"
+          nullable: true
+        phone:
+          type: string
+          description: "Teléfono del usuario. Se usa como identificador principal, por eso es obligatorio."
+          example: "+573178901234"
+        role:
+          type: integer
+          description: "Dependiendo de la aplicación, este valor puede tener significados diferentes (1: Admin, 2: User, etc.)"
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: "Página actual"
+          example: 1
+        limit:
+          type: integer
+          description: "Número de elementos por página"
+          example: 10
+        total:
+          type: integer
+          description: "Total de elementos"
+          example: 50
+        totalPages:
+          type: integer
+          description: "Total de páginas"
+          example: 5
+    
+    PaginatedUsers:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    
+    CreateUserRequest:
+      type: object
+      required:
+        - phone
+        - password
+      properties:
+        phone:
+          type: string
+          description: "Teléfono del usuario. Se usa como identificador principal."
+          example: "+573178901234"
+        password:
+          type: string
+          description: "Contraseña del usuario. Se hasheará antes de ser guardada."
+          example: "mySecurePassword123"
+    CreateUserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID del usuario"
+          example: 1
+        phone:
+          type: string
+          description: "Teléfono del usuario"
+          example: "+573178901234"
+        createdAt:
+          type: string
+          format: date-time
+          description: "Fecha de creación del usuario"
+          example: "2025-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Fecha de actualización del usuario"
+          example: "2025-01-01T00:00:00Z"
+    
+    SendVerificationCodeRequest:
+      type: object
+      required:
+        - phone
+      properties:
+        phone:
+          type: string
+          description: "Número de teléfono al que enviar el código de verificación"
+          example: "+573178901234"
+    
+    VerificationCodeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación"
+          example: "Código de verificación enviado exitosamente"
+        expiresIn:
+          type: integer
+          description: "Tiempo de expiración del código en segundos (configurado dinámicamente en el backend)"
+          example: 300
+    
+    VerifyCodeRequest:
+      type: object
+      required:
+        - phone
+        - code
+      properties:
+        phone:
+          type: string
+          description: "Número de teléfono que se está verificando"
+          example: "+573178901234"
+        code:
+          type: string
+          description: "Código de verificación de 6 dígitos recibido por SMS"
+          example: "123456"
+          pattern: "^[0-9]{6}$"
+    
+    VerifyCodeResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación"
+          example: "Teléfono verificado exitosamente"
+        verified:
+          type: boolean
+          description: "Indica si la verificación fue exitosa"
+          example: true
+        verifiedAt:
+          type: string
+          format: date-time
+          description: "Fecha y hora de la verificación (ISO 8601)"
+          example: "2025-01-01T00:02:30Z"
+    
+    RateLimitError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Mensaje de error específico según el tipo de límite"
+        type:
+          type: string
+          enum: ["minute_limit", "daily_limit"]
+          description: "Tipo de límite alcanzado"
+          example: "minute_limit"
+        retryAfter:
+          type: integer
+          description: "Segundos hasta que se pueda intentar de nuevo (solo para minute_limit)"
+          example: 45
+    
+    UpdateZoneRequest:
+      type: object
+      required:
+        - zoneId
+      properties:
+        zoneId:
+          type: integer
+          description: "ID de la zona a asignar al usuario"
+          example: 1
+          minimum: 1
+    
+    UpdateZoneResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación"
+          example: "Zona actualizada exitosamente"
+        userId:
+          type: integer
+          description: "ID del usuario actualizado"
+          example: 1
+        zoneId:
+          type: integer
+          description: "Nueva zona asignada"
+          example: 1
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Fecha y hora de la actualización"
+          example: "2025-01-01T00:05:00Z"
+    
+    CompleteProfileRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          description: "Nombre completo del usuario"
+          example: "John Doe"
+        email:
+          type: string
+          description: "Email del usuario. Se enviará un código de verificación automáticamente"
+          example: "john.doe@example.com"
+    
+    CompleteProfileResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación"
+          example: "Perfil completado exitosamente"
+        userId:
+          type: integer
+          description: "ID del usuario"
+          example: 1
+        emailVerificationSent:
+          type: boolean
+          description: "Indica que se envió código de verificación al email"
+          example: true
+        nextStep:
+          type: string
+          description: "Siguiente paso en el proceso de activación"
+          example: "Verifica tu email para desbloquear todas las funciones de la aplicación"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Fecha y hora de la actualización"
+          example: "2025-01-01T00:05:00Z"
+    
+    SendEmailVerificationRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          description: "Dirección de email para enviar el código de verificación"
+          example: "john.doe@example.com"
+    
+    EmailVerificationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación"
+          example: "Código de verificación enviado al email"
+        expiresIn:
+          type: integer
+          description: "Tiempo de expiración del código en segundos (configurado dinámicamente en el backend)"
+          example: 600
+    
+    VerifyEmailRequest:
+      type: object
+      required:
+        - email
+        - code
+      properties:
+        email:
+          type: string
+          description: "Dirección de email que se está verificando"
+          example: "john.doe@example.com"
+        code:
+          type: string
+          description: "Código de verificación de 6 dígitos recibido por email"
+          example: "123456"
+          pattern: "^[0-9]{6}$"
+    
+    VerifyEmailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación"
+          example: "Email verificado exitosamente"
+        verified:
+          type: boolean
+          description: "Indica si la verificación fue exitosa"
+          example: true
+        verifiedAt:
+          type: string
+          format: date-time
+          description: "Fecha y hora de la verificación (ISO 8601)"
+          example: "2025-01-01T00:02:30Z"
+    
+    BulkUsersRequest:
+      type: object
+      required:
+        - userIds
+      properties:
+        userIds:
+          type: array
+          items:
+            type: integer
+          description: "Array de IDs de usuarios a obtener"
+          example: [1, 2, 3, 15, 42]
+          minItems: 1
+    
+    BulkUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          description: "Lista de usuarios encontrados"
+        found:
+          type: integer
+          description: "Número de usuarios encontrados"
+          example: 3
+        notFound:
+          type: array
+          items:
+            type: integer
+          description: "IDs de usuarios que no fueron encontrados"
+          example: [15, 42]
+    
+    LoginRequest:
+      type: object
+      required:
+        - phone
+        - password
+      properties:
+        phone:
+          type: string
+          description: "Número de teléfono del usuario (identificador principal)"
+          example: "+573178901234"
+        password:
+          type: string
+          description: "Contraseña del usuario"
+          example: "mySecurePassword123"
+    
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Mensaje de confirmación de login exitoso"
+          example: "Login exitoso"
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: "ID del usuario"
+              example: 1
+            phone:
+              type: string
+              description: "Teléfono del usuario"
+              example: "+573178901234"
+            name:
+              type: string
+              description: "Nombre del usuario"
+              example: "John Doe"
+              nullable: true
+            email:
+              type: string
+              description: "Email del usuario"
+              example: "john.doe@example.com"
+              nullable: true
+            role:
+              type: integer
+              description: "Rol del usuario"
+              example: 1
+            zoneId:
+              type: integer
+              description: "ID de la zona del usuario"
+              example: 1
+              nullable: true
+        sessionExpiresIn:
+          type: integer
+          description: "Tiempo de expiración de la sesión en segundos"
+          example: 86400
+paths:
+  /login:
+    post:
+      summary: Iniciar sesión de usuario
+      description: |
+        Permite a un usuario autenticarse utilizando su número de teléfono y contraseña.
+        
+        **Proceso de autenticación:**
+        - Valida las credenciales del usuario (teléfono y contraseña)
+        - Genera una sesión segura con cookie httpOnly
+        - Retorna información básica del usuario autenticado
+        
+        **Gestión de sesión:**
+        - Se establece una cookie de sesión httpOnly y secure
+        - La cookie expira según la configuración del servidor
+        - La sesión se mantiene hasta el logout o expiración
+        
+        **Seguridad:**
+        - Las contraseñas se verifican contra el hash almacenado
+        - Rate limiting aplicado para prevenir ataques de fuerza bruta
+        - Cookie con flags de seguridad (httpOnly, secure, sameSite)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso, sesión iniciada
+          headers:
+            Set-Cookie:
+              description: "Cookie de sesión httpOnly para mantener la autenticación"
+              schema:
+                type: string
+                example: "sessionId=abc123def456; HttpOnly; Secure; SameSite=Strict; Max-Age=86400; Path=/"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Credenciales inválidas"
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Teléfono y contraseña son requeridos"
+        '429':
+          description: Demasiados intentos de login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Demasiados intentos de login. Intente nuevamente en 15 minutos"
+                  retryAfter:
+                    type: integer
+                    description: "Segundos hasta que se pueda intentar de nuevo"
+                    example: 900
+        '423':
+          description: Cuenta bloqueada temporalmente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Cuenta bloqueada temporalmente por seguridad"
+                  lockoutExpiresIn:
+                    type: integer
+                    description: "Segundos hasta que expire el bloqueo"
+                    example: 1800
+
+  /phone/verify/send-code:
+    post:
+      summary: Enviar código de verificación por SMS
+      description: |
+        Envía un código de verificación de 6 dígitos al número de teléfono proporcionado.
+        
+        **Limitaciones de Rate Limiting:**
+        - Solo se puede enviar un código cada **1 minuto** por IP
+        - Máximo **10 códigos por día** por IP
+        - La identidad del usuario se verifica por su ID en el backend para aplicar estos límites
+        
+        **Detalles del código:**
+        - Código de 6 dígitos numéricos
+        - Tiempo de expiración configurable (devuelto en la respuesta)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendVerificationCodeRequest'
+      responses:
+        '200':
+          description: |
+            Solicitud procesada exitosamente. 
+            **Nota de seguridad:** Este endpoint siempre devuelve 200 para evitar revelar qué números están registrados.
+            El código solo se envía si el teléfono existe en el sistema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationCodeResponse'
+        '429':
+          description: Límite de rate limiting alcanzado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+  
+  /phone/verify/check-code:
+    post:
+      summary: Verificar código de validación
+      description: |
+        Verifica el código de 6 dígitos enviado por SMS para validar el número de teléfono.
+        
+        **Comportamiento del código:**
+        - El código se invalida automáticamente después de ser usado correctamente
+        - Solo se permite un intento de verificación por código
+        - El código expira según el tiempo configurado en el backend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyCodeRequest'
+      responses:
+        '200':
+          description: Código verificado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyCodeResponse'
+        '400':
+          description: Error de verificación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "El código es inválido o no hay verificaciones pendientes para este número"
+  
+  /email/verify/send-code:
+    post:
+      summary: Enviar código de verificación por email
+      description: |
+        Envía un código de verificación de 6 dígitos al email proporcionado.
+        
+        **Limitaciones de Rate Limiting:**
+        - Solo se puede enviar un código cada **1 minuto** por usuario
+        - Máximo **10 códigos por día** por usuario
+        - Los límites se aplican por usuario autenticado (no por IP)
+        
+        **Detalles del código:**
+        - Código de 6 dígitos numéricos
+        - Tiempo de expiración configurable (devuelto en la respuesta)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendEmailVerificationRequest'
+      responses:
+        '200':
+          description: |
+            Solicitud procesada exitosamente. 
+            **Nota de seguridad:** Este endpoint siempre devuelve 200 para evitar revelar qué emails están registrados.
+            El código solo se envía si el email existe en el sistema.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailVerificationResponse'
+        '429':
+          description: Límite de rate limiting alcanzado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+  
+  /email/verify/check-code:
+    post:
+      summary: Verificar código de email
+      description: |
+        Verifica el código de 6 dígitos enviado por email para validar la dirección de correo.
+        
+        **Comportamiento del código:**
+        - El código se invalida automáticamente después de ser usado correctamente
+        - Solo se permite un intento de verificación por código
+        - El código expira según el tiempo configurado en el backend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '200':
+          description: Email verificado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+        '400':
+          description: Error de verificación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "El código es inválido o no hay verificaciones pendientes para este email"
+  
+  /users:
+    get:
+      summary: Obtener la lista de usuarios
+      responses:
+        '200':
+          description: Retorna la lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Crear un nuevo usuario
+      description: Crea un nuevo usuario con teléfono y contraseña como campos obligatorios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "El teléfono ya está registrado"
+        '422':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Formato de teléfono inválido"
+  /users/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario"
+          example: 1
+      responses:
+        '200':
+          description: Retorna un usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  
+  /users/bulk:
+    post:
+      summary: Obtener múltiples usuarios por IDs
+      description: |
+        Obtiene información de múltiples usuarios basándose en un array de IDs.
+        
+        **Características:**
+        - Acepta cualquier cantidad de IDs por solicitud
+        - Retorna solo los usuarios encontrados
+        - Incluye lista de IDs no encontrados
+        - Útil para obtener información de múltiples usuarios de manera eficiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUsersRequest'
+      responses:
+        '200':
+          description: Usuarios obtenidos exitosamente (incluye usuarios encontrados y no encontrados)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUsersResponse'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Debe proporcionar al menos un ID de usuario"
+  
+  /users/{id}/zone:
+    post:
+      summary: Actualizar zona del usuario
+      description: Asigna o actualiza la zona de un usuario específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario"
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateZoneRequest'
+      responses:
+        '200':
+          description: Zona actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateZoneResponse'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "ID de zona inválido"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario no encontrado"
+  
+  /users/{id}/complete-profile:
+    post:
+      summary: Completar perfil de usuario
+      description: |
+        Completa la información del perfil del usuario después de la verificación telefónica.
+        Este endpoint se usa una sola vez para desbloquear todas las funciones de la aplicación.
+        
+        **Proceso de activación:**
+        - Requiere nombre completo y email
+        - Se envía automáticamente un código de verificación al email
+        
+        **Limitaciones de Rate Limiting para Email:**
+        - Solo se puede enviar un código cada **1 minuto** por usuario
+        - Máximo **10 códigos por día** por usuario
+        - El código tiene un tiempo de expiración configurable
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario"
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteProfileRequest'
+      responses:
+        '200':
+          description: Perfil completado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteProfileResponse'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Formato de email inválido"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario no encontrado"
+        '429':
+          description: Límite de rate limiting alcanzado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitError'
+  
+  /users/paginated/{page}/{limit}:
+    get:
+      parameters:
+        - name: page
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+          description: "Número de página"
+          example: 0
+        - name: limit
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: "Número de elementos por página"
+          example: 10
+        - name: roles
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+          description: "Filtrar por roles específicos. Se pueden pasar múltiples roles."
+          example: [1, 2]
+      responses:
+        '200':
+          description: Retorna una lista paginada de usuarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUsers'
+
+

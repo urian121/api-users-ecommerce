@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Api User Ecommerce
 
-First, run the development server:
+proyecto desarrolaldo con Next.js 15 + TypeScript para la api de usuarios en un ecommerce
+
+## Instalación
 
 ```bash
-npm run dev
+npm install
 # or
-yarn dev
+yarn install
 # or
-pnpm dev
+pnpm install
 # or
-bun dev
+bun install
+```
+```bash
+/mi-proyecto
+|-- /app              # Código de Next.js (páginas, APIs)
+|-- /drizzle          # Archivos de Drizzle (migraciones)
+|-- /lib              # Archivos de utilidad y lógica de negocio
+|-- /db               # Conexión a la base de datos y esquema
+|   |-- index.ts      # Archivo de conexión (drizzle-orm)
+|   |-- schema.ts     # Definición del esquema de la base de datos
+|-- drizzle.config.ts # Configuración de Drizzle CLI
+|-- package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# Librerias
+npm install drizzle-orm # para interactuar con la base de datos
+npm install -D drizzle-kit # para generar migraciones
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+npm install pg  # driver para conectar con postgreSQL
+npm install zod  # para validar datos
+npm install -D @types/pg  # para tipado de datos en postgreSQL
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+npm install -D dotenv # para manejar variables de entorno
 
-## Learn More
+# Tareas
 
-To learn more about Next.js, take a look at the following resources:
+- [x] Crear proyecto Next.js 15 + TypeScript
+- [x] Conectar Next.js con postgreSQL
+- [x] Instalar y configurar Drizzle ORM
+- [x] Configurar Zod
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Migraciones
+npm run db:generate  # Genera migraciones
+npm run db:push      # Aplica cambios directos
+npm run db:studio    # Interfaz visual de DB
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+cuando quieras crear o liminar una carpata pideme permiso
