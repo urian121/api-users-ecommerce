@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db, users } from '@/../db';
 
 export async function GET() {
@@ -14,11 +14,25 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const newUser = await db.insert(users).values(body).returning();
-    return NextResponse.json({ user: newUser[0] });
+    const { name, email, password } = body;
+    
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: 'Name, email and password are required' },
+        { status: 400 }
+      );
+    }
+
+    const newUser = await db.insert(users).values({
+      name,
+      email,
+      password,
+    }).returning();
+    
+    return NextResponse.json({ user: newUser[0] }, { status: 201 });
   } catch (error) {
     console.error('Error creating user:', error);
     return NextResponse.json(
