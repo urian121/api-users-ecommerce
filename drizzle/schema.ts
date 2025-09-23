@@ -28,11 +28,11 @@ export type NewCreateUserAttempt = typeof createUserAttempt.$inferInsert;
 // =====================
 export const phoneVerification = pgTable("phone_verification", {
   ipId: integer("ip_id").primaryKey().references(() => createUserAttempt.id),
-  code: varchar("code", { length: 10 }).notNull(),
-  validUntil: timestamp("valid_until").notNull(),
-  verified: boolean("verified").default(false),
-  codesSentCount: integer("codes_sent_count").default(0),
-  lastCodeSent: timestamp("last_code_sent"),
+  code: varchar("code", { length: 10 }).notNull(), // Código de verificación enviado al usuario
+  validUntil: timestamp("valid_until").notNull(), // Fecha y hora hasta la cual es válido el código maximo 5 minutos
+  verified: boolean("verified").default(false), // Indica si el código ha sido verificado (true o false)
+  codesSentCount: integer("codes_sent_count").default(0), // Contar cuantos códigos se han enviado al usuario maximo 10 por día
+  lastCodeSent: timestamp("last_code_sent"), // Fecha y hora del último código enviado
 });
 
 // Tipos TypeScript
@@ -48,7 +48,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   name: varchar("name", { length: 100 }),
   zoneId: integer("zone_id"),
-  email: varchar("email", { length: 255 }).unique(),
+  email: varchar("email", { length: 255 }),
   role: integer("role"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

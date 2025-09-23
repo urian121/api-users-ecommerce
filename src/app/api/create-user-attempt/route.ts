@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { createUserAttempt } from '@/drizzle/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
+import { getClientIp } from '@/utils/get-client-ip';
 import { 
   CreateUserAttemptRequest, 
   CreateUserAttemptResponse, 
@@ -23,7 +24,8 @@ export async function GET(): Promise<NextResponse<CreateUserAttemptResponse[] | 
 // POST /api/create-user-attempt
 export async function POST(request: NextRequest): Promise<NextResponse<CreateUserAttemptResponse | CreateUserAttemptError>> {
   try {
-    const { phoneNumber, password, ip }: CreateUserAttemptRequest = await request.json();
+    const { phoneNumber, password }: CreateUserAttemptRequest = await request.json();
+    const clientIp = getClientIp(request);
         
     if (!phoneNumber || !password) {
       return NextResponse.json({ error: 'phoneNumber y password son requeridos' }, { status: 400 });
@@ -37,7 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateUse
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const [newAttempt] = await db.insert(createUserAttempt).values({
-      ip: ip || 'unknown',
+      ip: clientIp,
       phoneNumber,
       password: hashedPassword,
     }).returning();

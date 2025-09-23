@@ -1,7 +1,10 @@
 
 # Api User Ecommerce
 
-proyecto desarrolaldo con Next.js 15 + TypeScript para la api de usuarios en un ecommerce
+proyecto desarrolaldo con Next.js 15 + TypeScript para la api para gestion de usuarios y autenticación.
+- login
+- registro
+- verificación de teléfono
 
 ## Instalación
 
@@ -31,7 +34,6 @@ npm install drizzle-orm # para interactuar con la base de datos
 npm install -D drizzle-kit # para generar migraciones
 
 npm install pg  # driver para conectar con postgreSQL
-npm install zod  # para validar datos
 npm install -D @types/pg  # para tipado de datos en postgreSQL
 
 npm install -D dotenv # para manejar variables de entorno
@@ -40,12 +42,10 @@ npm install bcryptjs # bcryptjs - Para hashear contraseñas
 npm install --save-dev @types/jsonwebtoken @types/bcryptjs # Tipado para jsonwebtoken y bcryptjs
 
 
-# Tareas
-
+# Configuración
 - [x] Crear proyecto Next.js 15 + TypeScript
 - [x] Conectar Next.js con postgreSQL
 - [x] Instalar y configurar Drizzle ORM
-- [x] Configurar Zod
 
 
 # Migraciones
