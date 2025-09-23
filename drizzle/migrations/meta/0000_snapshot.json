@@ -1,5 +1,5 @@
 {
-  "id": "5f7d3d0f-106b-4843-be7b-ab4bce36f93b",
+  "id": "3ec94bd5-5f04-444a-98aa-26f9113e8e8d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -132,7 +132,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "create_user_attempt_phone_number_unique": {
+          "name": "create_user_attempt_phone_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone_number"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -197,7 +205,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "email_verification_code_unique": {
+          "name": "email_verification_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -268,7 +284,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "email_verification_update_code_unique": {
+          "name": "email_verification_update_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -404,7 +428,22 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "phone_verification_update_phone_number_unique": {
+          "name": "phone_verification_update_phone_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone_number"
+          ]
+        },
+        "phone_verification_update_code_unique": {
+          "name": "phone_verification_update_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -419,8 +458,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "phone_number": {
-          "name": "phone_number",
+        "phone": {
+          "name": "phone",
           "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
@@ -435,11 +474,11 @@
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "last_name": {
-          "name": "last_name",
-          "type": "varchar(100)",
+        "zone_id": {
+          "name": "zone_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -449,23 +488,38 @@
           "primaryKey": false,
           "notNull": false
         },
-        "id_number": {
-          "name": "id_number",
-          "type": "varchar(50)",
+        "role": {
+          "name": "role",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "id_type": {
-          "name": "id_type",
-          "type": "varchar(50)",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "users_phone_unique": {
+          "name": "users_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,

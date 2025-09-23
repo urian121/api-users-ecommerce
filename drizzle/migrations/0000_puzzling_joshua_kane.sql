@@ -15,7 +15,8 @@ CREATE TABLE "create_user_attempt" (
 	"ip" varchar(50) NOT NULL,
 	"phone_number" varchar(20) NOT NULL,
 	"password" text NOT NULL,
-	"created_at" timestamp DEFAULT now()
+	"created_at" timestamp DEFAULT now(),
+	CONSTRAINT "create_user_attempt_phone_number_unique" UNIQUE("phone_number")
 );
 --> statement-breakpoint
 CREATE TABLE "email_verification" (
@@ -24,7 +25,8 @@ CREATE TABLE "email_verification" (
 	"valid_until" timestamp NOT NULL,
 	"verified" boolean DEFAULT false,
 	"codes_sent_count" integer DEFAULT 0,
-	"last_code_sent" timestamp
+	"last_code_sent" timestamp,
+	CONSTRAINT "email_verification_code_unique" UNIQUE("code")
 );
 --> statement-breakpoint
 CREATE TABLE "email_verification_update" (
@@ -34,7 +36,8 @@ CREATE TABLE "email_verification_update" (
 	"valid_until" timestamp NOT NULL,
 	"verified" boolean DEFAULT false,
 	"codes_sent_count" integer DEFAULT 0,
-	"last_code_sent" timestamp
+	"last_code_sent" timestamp,
+	CONSTRAINT "email_verification_update_code_unique" UNIQUE("code")
 );
 --> statement-breakpoint
 CREATE TABLE "phone_verification" (
@@ -53,18 +56,22 @@ CREATE TABLE "phone_verification_update" (
 	"valid_until" timestamp NOT NULL,
 	"verified" boolean DEFAULT false,
 	"codes_sent_count" integer DEFAULT 0,
-	"last_code_sent" timestamp
+	"last_code_sent" timestamp,
+	CONSTRAINT "phone_verification_update_phone_number_unique" UNIQUE("phone_number"),
+	CONSTRAINT "phone_verification_update_code_unique" UNIQUE("code")
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"phone_number" varchar(20) NOT NULL,
+	"phone" varchar(20) NOT NULL,
 	"password" text NOT NULL,
-	"name" varchar(100) NOT NULL,
-	"last_name" varchar(100),
+	"name" varchar(100),
+	"zone_id" integer,
 	"email" varchar(255),
-	"id_number" varchar(50),
-	"id_type" varchar(50),
+	"role" integer,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "users_phone_unique" UNIQUE("phone"),
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint

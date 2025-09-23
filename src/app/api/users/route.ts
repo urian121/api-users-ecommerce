@@ -15,29 +15,32 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  /*try {
+  try {
     const body = await request.json();
-    const { name, email, password } = body;
     
-    if (!name || !email || !password) {
+    // Validación de campos requeridos según el schema
+    if (!body.phoneNumber || !body.password || !body.name) {
       return NextResponse.json(
-        { error: 'Name, email and password are required' },
+        { error: 'Los campos phoneNumber, password y name son requeridos' },
         { status: 400 }
       );
     }
 
     const newUser = await db.insert(users).values({
-      name,
-      email,
-      password,
+      phoneNumber: body.phoneNumber,
+      password: body.password,
+      name: body.name,
+      lastName: body.lastName || null,
+      email: body.email || null,
+      idNumber: body.idNumber || null,
+      idType: body.idType || null,
     }).returning();
     
-    return NextResponse.json({ user: newUser[0] }, { status: 201 });
+    return NextResponse.json(newUser[0], { status: 201 });
   } catch (error) {
-    console.error('Error creating user:', error);
     return NextResponse.json(
-      { error: 'Failed to create user' },
+      { error: 'Error al crear el usuario' },
       { status: 500 }
     );
-  }*/
+  }
 }

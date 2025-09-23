@@ -9,17 +9,49 @@ import {
 } from "drizzle-orm/pg-core";
 
 // =====================
+// CREATE USER ATTEMPT
+// =====================
+export const createUserAttempt = pgTable("create_user_attempt", {
+  id: serial("id").primaryKey(),
+  ip: varchar("ip", { length: 50 }).notNull(),
+  phoneNumber: varchar("phone_number", { length: 20 }).notNull().unique(),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Tipos TypeScript
+export type CreateUserAttempt = typeof createUserAttempt.$inferSelect;
+export type NewCreateUserAttempt = typeof createUserAttempt.$inferInsert;
+
+// =====================
+// PHONE VERIFICATION
+// =====================
+export const phoneVerification = pgTable("phone_verification", {
+  ipId: integer("ip_id").primaryKey().references(() => createUserAttempt.id),
+  code: varchar("code", { length: 10 }).notNull(),
+  validUntil: timestamp("valid_until").notNull(),
+  verified: boolean("verified").default(false),
+  codesSentCount: integer("codes_sent_count").default(0),
+  lastCodeSent: timestamp("last_code_sent"),
+});
+
+// Tipos TypeScript
+export type PhoneVerification = typeof phoneVerification.$inferSelect;
+export type NewPhoneVerification = typeof phoneVerification.$inferInsert;
+
+// =====================
 // USERS
 // =====================
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull().unique(),
   password: text("password").notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  lastName: varchar("last_name", { length: 100 }),
+  name: varchar("name", { length: 100 }),
+  zoneId: integer("zone_id"),
   email: varchar("email", { length: 255 }).unique(),
-  idNumber: varchar("id_number", { length: 50 }),
-  idType: varchar("id_type", { length: 50 }),
+  role: integer("role"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -53,38 +85,6 @@ export type AppRole = typeof appRoles.$inferSelect;
 export type NewAppRole = typeof appRoles.$inferInsert;
 
 // =====================
-// CREATE USER ATTEMPT
-// =====================
-export const createUserAttempt = pgTable("create_user_attempt", {
-  id: serial("id").primaryKey(),
-  ip: varchar("ip", { length: 50 }).notNull(),
-  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
-  password: text("password").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Tipos TypeScript
-export type CreateUserAttempt = typeof createUserAttempt.$inferSelect;
-export type NewCreateUserAttempt = typeof createUserAttempt.$inferInsert;
-
-// =====================
-// PHONE VERIFICATION
-// =====================
-export const phoneVerification = pgTable("phone_verification", {
-  ipId: integer("ip_id").primaryKey().references(() => createUserAttempt.id),
-  code: varchar("code", { length: 10 }).notNull(),
-  validUntil: timestamp("valid_until").notNull(),
-  verified: boolean("verified").default(false),
-  codesSentCount: integer("codes_sent_count").default(0),
-  lastCodeSent: timestamp("last_code_sent"),
-});
-
-// Tipos TypeScript
-export type PhoneVerification = typeof phoneVerification.$inferSelect;
-export type NewPhoneVerification = typeof phoneVerification.$inferInsert;
-
-
-// =====================
 // PHONE VERIFICATION UPDATE
 // =====================
 export const phoneVerificationUpdate = pgTable("phone_verification_update", {
@@ -92,8 +92,8 @@ export const phoneVerificationUpdate = pgTable("phone_verification_update", {
     .primaryKey()
     .references(() => users.id), // relación 1:1 con User
 
-  phoneNumber: varchar("phone_number", { length: 20 }).notNull(),
-  code: varchar("code", { length: 10 }).notNull(),
+  phoneNumber: varchar("phone_number", { length: 20 }).notNull().unique(),
+  code: varchar("code", { length: 10 }).notNull().unique(),
   validUntil: timestamp("valid_until").notNull(),
   verified: boolean("verified").default(false),
   codesSentCount: integer("codes_sent_count").default(0),
@@ -112,7 +112,7 @@ export const emailVerification = pgTable("email_verification", {
     .primaryKey()
     .references(() => users.id), // relación 1:1 con User
 
-  code: varchar("code", { length: 10 }).notNull(),
+  code: varchar("code", { length: 10 }).notNull().unique(),
   validUntil: timestamp("valid_until").notNull(),
   verified: boolean("verified").default(false),
   codesSentCount: integer("codes_sent_count").default(0),
@@ -133,7 +133,7 @@ export const emailVerificationUpdate = pgTable("email_verification_update", {
     .references(() => users.id), // relación 1:1 con User
 
   email: varchar("email", { length: 255 }).notNull(), // nuevo correo en actualización
-  code: varchar("code", { length: 10 }).notNull(),
+  code: varchar("code", { length: 10 }).notNull().unique(),
   validUntil: timestamp("valid_until").notNull(),
   verified: boolean("verified").default(false),
   codesSentCount: integer("codes_sent_count").default(0),
