@@ -47,7 +47,6 @@ export const users = pgTable("users", {
   phone: varchar("phone", { length: 20 }).notNull().unique(),
   password: text("password").notNull(),
   name: varchar("name", { length: 100 }),
-  zoneId: integer("zone_id"),
   email: varchar("email", { length: 255 }),
   role: integer("role"),
   createdAt: timestamp("created_at").defaultNow(),

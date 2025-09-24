@@ -105,3 +105,8 @@ VALUES (3, '111222', NOW() + interval '5 minutes', false, 1);
 
 INSERT INTO users (phone, password, name, email, role)
 VALUES ('3003334455', 'hashed_password_789', 'Carlos López', 'carlos@example.com', 3);
+
+
+PENDIENTES:
+cuando se verifica el codigo se copia el usuario en la tabla users, pero sin ningun rol por default.
+Hay un endpoint para crear un usuario y no se si es necesario, porque el usuario se crea cuando se verifica el codigo.

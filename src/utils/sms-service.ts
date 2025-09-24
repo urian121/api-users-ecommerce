@@ -37,8 +37,8 @@ export async function sendSMS(phoneNumber: string, code: string): Promise<SMSRes
     console.log(`SMS enviado a ${phoneNumber}: Código ${code}`);
     return { success: true, messageId: `prod_${Date.now()}` };
 
-  } catch (error) {
-    console.error('Error enviando SMS:', error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
     return { success: false, error: 'Error al enviar SMS' };
   }
 }

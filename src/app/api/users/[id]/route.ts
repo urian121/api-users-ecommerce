@@ -3,11 +3,12 @@ import { db } from '@/db';
 import { users } from '@/db';
 import { eq } from 'drizzle-orm';
 
-// GET /api/users/[id] - Obtener usuario por ID
+// 1. GET - Obtener usuario por ID
 export async function GET( request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id);
     
+    // 2. Validar ID numérico
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'ID inválido' },
@@ -15,8 +16,18 @@ export async function GET( request: NextRequest, { params }: { params: { id: str
       );
     }
 
-    const user = await db.select().from(users).where(eq(users.id, id));
+    // 3. Buscar usuario excluyendo password
+    const user = await db.select({
+      id: users.id,
+      phone: users.phone,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    }).from(users).where(eq(users.id, id));
     
+    // 4. Verificar si existe
     if (user.length === 0) {
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
@@ -25,7 +36,8 @@ export async function GET( request: NextRequest, { params }: { params: { id: str
     }
 
     return NextResponse.json(user[0]);
-  } catch (error) {
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
     return NextResponse.json(
       { error: 'Error al obtener el usuario' },
       { status: 500 }
@@ -63,7 +75,6 @@ export async function PUT(
         password: body.password,
         name: body.name,
         email: body.email || null,
-        zoneId: body.zoneId || null,
         role: body.role || null,
       })
       .where(eq(users.id, id))
@@ -77,8 +88,8 @@ export async function PUT(
     }
 
     return NextResponse.json(updatedUser[0]);
-  } catch (error) {
-    console.error('Error al actualizar usuario:', error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
     return NextResponse.json(
       { error: 'Error al actualizar el usuario' },
       { status: 500 }
@@ -117,8 +128,8 @@ export async function DELETE(
       { message: 'Usuario eliminado correctamente' },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Error al eliminar usuario:', error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
     return NextResponse.json(
       { error: 'Error al eliminar el usuario' },
       { status: 500 }
