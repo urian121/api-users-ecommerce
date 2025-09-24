@@ -8,10 +8,8 @@ export async function GET() {
     const allApps = await db.select().from(apps);
     return NextResponse.json(allApps);
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error al obtener las apps' },
-      { status: 500 }
-    );
+    if (process.env.NODE_ENV === 'development') console.error(error);
+    return NextResponse.json({ error: 'Error al obtener las apps' }, { status: 500 });
   }
 }
 
@@ -34,9 +32,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newApp[0], { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error al crear la app' },
-      { status: 500 }
-    );
+    if (process.env.NODE_ENV === 'development') console.error(error);
+    return NextResponse.json({ error: 'Error al crear la app' }, { status: 500 });
   }
 }

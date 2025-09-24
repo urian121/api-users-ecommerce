@@ -91,6 +91,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<SendCodeR
 
     // 8. Enviar SMS real o simulado
     const phoneNumber = userAttempt[0].phoneNumber;
+    console.log('Enviando SMS a:', phoneNumber, 'Código:', code);
     const smsResult = await sendSMS(phoneNumber, code);
     
     if (!smsResult.success) {

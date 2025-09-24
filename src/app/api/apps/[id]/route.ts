@@ -4,10 +4,7 @@ import { apps } from '@/db';
 import { eq } from 'drizzle-orm';
 
 // GET /api/apps/[id] - Obtener app por ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id);
     
@@ -28,19 +25,14 @@ export async function GET(
     }
 
     return NextResponse.json(app[0]);
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Error al obtener la app' },
-      { status: 500 }
-    );
+    } catch (error) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
+    return NextResponse.json({ error: 'Error al obtener la app' }, { status: 500 });
   }
 }
 
 // PUT /api/apps/[id] - Actualizar app por ID
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id);
     const body = await request.json();
@@ -73,19 +65,15 @@ export async function PUT(
     }
 
     return NextResponse.json(updatedApp[0]);
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Error al actualizar la app' },
-      { status: 500 }
-    );
+
+    } catch (error) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
+    return NextResponse.json({ error: 'Error al actualizar la app' }, { status: 500 });
   }
 }
 
 // DELETE /api/apps/[id] - Eliminar app por ID
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id);
     
@@ -113,9 +101,7 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error al eliminar la app' },
-      { status: 500 }
-    );
+    if (process.env.NODE_ENV === 'development') console.error(error);
+    return NextResponse.json({ error: 'Error al eliminar la app' }, { status: 500 });
   }
 }

@@ -20,8 +20,10 @@ Acontinuación se detalla el flujo a desarrollar para la API Users:
 
 
 
-En Drizzle, por defecto los campos son NULL salvo que los marques como .notNull() o les pongas un default.
-  password: text("password").notNull(),
-  email: varchar("email", { length: 255 }).default(null),
-  role: integer("role"), es nullable porque no tienen .notNull() ni default, tambien lo podrias especificar asi: role: 
-  integer("role").default(null),
+En Drizzle, por defecto los campos son `NULL` salvo que los marques como `.notNull()` o les pongas un default.
+```bash
+password: text("password").notNull(),
+email: varchar("email", { length: 255 }).default(null),
+role: integer("role"), es nullable porque no tienen .notNull() ni default, tambien lo podrias especificar asi: role: 
+integer("role").default(null),
+```
