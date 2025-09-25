@@ -3,10 +3,11 @@ import { db, users } from '@/db';
 import { sql } from 'drizzle-orm';
 
 // 1. GET - Obtener usuarios paginados
-export async function GET( request: NextRequest, { params }: { params: { page: string; limit: string } }) {
+export async function GET( request: NextRequest, { params }: { params: Promise<{ page: string; limit: string }> }) {
   try {
-    const page = parseInt(params.page);
-    const limit = parseInt(params.limit);
+    const { page: pageParam, limit: limitParam } = await params;
+    const page = parseInt(pageParam);
+    const limit = parseInt(limitParam);
     
     // 2. Validar parámetros de paginación
     if (isNaN(page) || page < 0) {

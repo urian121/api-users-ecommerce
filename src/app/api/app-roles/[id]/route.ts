@@ -4,12 +4,10 @@ import { appRoles, users, apps } from '@/db';
 import { eq, and } from 'drizzle-orm';
 
 // GET /api/app-roles/[id] - Obtener app role por ID con información completa
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET( request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     
     if (isNaN(id)) {
       return NextResponse.json(
@@ -53,10 +51,11 @@ export async function GET(
 // PUT /api/app-roles/[id] - Actualizar app role por ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     const body = await request.json();
     
     if (isNaN(id)) {
@@ -155,10 +154,11 @@ export async function PUT(
 // DELETE /api/app-roles/[id] - Eliminar app role por ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     
     if (isNaN(id)) {
       return NextResponse.json(

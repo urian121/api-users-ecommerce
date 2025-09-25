@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { phoneVerification, createUserAttempt } from '@/drizzle/schema';
+import { phoneVerification, createUserAttempt, PhoneVerification } from '@/drizzle/schema';
 import { eq, and, gte, count } from 'drizzle-orm';
 import { SendCodeRequest, SendCodeResponse, PhoneVerificationError } from '@/types/phone-verification';
 import { sendSMS } from '@/utils/sms-service'; // Importar la función sendSMS
 
+
+// GET /api/phone-verify-send-code - Obtener todas las verificaciones
+export async function GET(): Promise<NextResponse<PhoneVerification[] | PhoneVerificationError>> {
+  try {
+    const allVerifications = await db.select().from(phoneVerification);
+    return NextResponse.json(allVerifications);
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') console.error(error);
+    return NextResponse.json({ error: 'Error al obtener verificaciones' }, { status: 500 });
+  }
+}
+
 /**
- * POST /api/phone-verification/send - Enviar código SMS
+ * POST /api/phone-verify-send-code - Enviar código SMS
  * Genera código de 6 dígitos aleatorio
  * Valida rate limiting (1 min entre códigos, 10 max/día)
  * Simula envío SMS (log en desarrollo)

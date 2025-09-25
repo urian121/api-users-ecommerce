@@ -6,9 +6,10 @@ import { eq } from 'drizzle-orm';
 const emailRateLimit = new Map<number, { count: number, lastSent: number, dailyCount: number, dailyReset: number }>();
 
 // 1. POST - Completar perfil de usuario
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     const { name, email } = await request.json();
     
     // 2. Validar ID numérico

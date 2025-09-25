@@ -4,9 +4,10 @@ import { users } from '@/db';
 import { eq } from 'drizzle-orm';
 
 // 1. GET - Obtener usuario por ID
-export async function GET( request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET( request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     
     // 2. Validar ID numérico
     if (isNaN(id)) {
@@ -48,10 +49,11 @@ export async function GET( request: NextRequest, { params }: { params: { id: str
 // PUT /api/users/[id] - Actualizar usuario por ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     const body = await request.json();
     
     if (isNaN(id)) {
@@ -100,10 +102,11 @@ export async function PUT(
 // DELETE /api/users/[id] - Eliminar usuario por ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     
     if (isNaN(id)) {
       return NextResponse.json(

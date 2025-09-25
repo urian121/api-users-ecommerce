@@ -110,3 +110,13 @@ VALUES ('3003334455', 'hashed_password_789', 'Carlos López', 'carlos@example.co
 PENDIENTES:
 cuando se verifica el codigo se copia el usuario en la tabla users, pero sin ningun rol por default.
 Hay un endpoint para crear un usuario y no se si es necesario, porque el usuario se crea cuando se verifica el codigo.
+No existe la ruta endpoints en el archivo .yml para actualizar el telefono.
+
+Se puede borrar la carpeta .next y luego construir la aplicacion con:
+eLIMINA LA CARPETA:
+- rm -rf .next
+- crea la carpeta .next
+npm run build
+
+Falta:
+api phone-verification-update

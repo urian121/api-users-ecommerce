@@ -4,8 +4,9 @@ import { phoneVerification, users, createUserAttempt } from '@/drizzle/schema';
 import { eq, and, gte } from 'drizzle-orm';
 import { VerifyCodeRequest, VerifyCodeResponse, PhoneVerificationError } from '@/types/phone-verification';
 
+
 /**
- * POST /api/phone-verification/verify - Verificar código SMS
+ * POST /api/phone-verify-check-code - Verificar código SMS
  * Valida código de 6 dígitos enviado por SMS
  * Verifica que no esté expirado (5 min máximo)
  * Crea usuario definitivo si la verificación es exitosa en la tabla users
